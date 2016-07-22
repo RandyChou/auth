@@ -54,7 +54,7 @@ export default class Role {
             await permissionGroupBusiness.deleteRole(role);
         }
 
-        if(user.roles && user.roles.length > 0) {
+        if(role.users && role.users.length > 0) {
             let userBusiness = new Business();
             await userBusiness.deleteRole(role);
         }
@@ -74,13 +74,28 @@ export default class Role {
         return true;
     }
 
+    async addUser(userId, roles) {
+        _.each(roles, async (r) => {
+            let roleModel = await RoleModel.findById(r._id).exec();
+
+            roleModel.users.push(userId);
+            roleModel.users = utils.uniq(roleModel.users);
+            await roleModel.save();
+        });
+
+        return true;
+    }
+
     async deleteUser(userModel) {
         _.each(userModel.roles, async (roleId) => {
             let roleModel = await RoleModel.findById(roleId).exec();
+            console.log(roleModel.users, roleModel.users.indexOf(userModel._id));
             if(roleModel.users.indexOf(userModel._id)) {
                 roleModel.users.splice(roleModel.users.indexOf(userModel._id), 1);
                 await roleModel.save();
             }
         });
+
+        return true;
     }
 }
