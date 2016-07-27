@@ -15,7 +15,7 @@ export default class User {
                     path: 'permissions'
                 }
             }
-        }).exec());
+        }).populate('userType').exec());
     }
 
     async addUser(data, roles) {

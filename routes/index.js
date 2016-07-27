@@ -1,13 +1,21 @@
-import permission from './permission';
-import permissionGroup from './permissionGroup';
-import role from './role';
-import user from './user';
+import fs from 'fs';
+import path from 'path';
+import _ from 'underscore';
 
 var router = require('koa-router')();
 
-router.use('/user', user.routes(), user.allowedMethods());
-router.use('/role', role.routes(), role.allowedMethods());
-router.use('/permissionGroup', permissionGroup.routes(), permissionGroup.allowedMethods());
-router.use('/permission', permission.routes(), permission.allowedMethods());
+fs.readdir('./routes', (err, files) => {
+    if(err) {
+        return console.log('读取路由出错');
+    }
+
+    _.each(files, (file) => {
+        let f = file.substring(0, file.indexOf('.'));
+        if(f !== 'index') {
+            let item = require(path.resolve(__dirname, file));
+            router.use('/' + f, item.routes(), item.allowedMethods());
+        }
+    });
+});
 
 module.exports = router;
